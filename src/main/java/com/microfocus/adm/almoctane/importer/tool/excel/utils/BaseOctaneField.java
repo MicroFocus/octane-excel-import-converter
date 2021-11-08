@@ -20,16 +20,7 @@ public enum BaseOctaneField {
     TYPE("type"),
     TEST_TYPE("test_type"),
     STEP_TYPE("step_type"),
-    STEP_DESCRIPTION("step_description"),
-    NAME("name"),
-    DESCRIPTION("description"),
-    DESIGNER("designer"),
-    OWNER("owner"),
-    PRODUCT_AREAS("product_areas"),
-    USER_TAG("user_tags"),
-    PHASE("phase"),
-    COVERED_CONTENT("covered_content"),
-    ESTIMATED_DURATION("estimated_duration");
+    STEP_DESCRIPTION("step_description");
 
     private final String typeName;
 

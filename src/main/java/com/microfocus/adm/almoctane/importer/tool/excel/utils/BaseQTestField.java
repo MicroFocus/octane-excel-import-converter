@@ -16,24 +16,9 @@
 package com.microfocus.adm.almoctane.importer.tool.excel.utils;
 
 public enum BaseQTestField {
-    MODULE("Module"),
-    NAME("Name"),
     ID("Id"),
-    ATTACHMENTS("Attachments"),
-    STATUS("Status"),
-    TYPE("Type"),
-    DESCRIPTION("Description"),
-    PRECONDITION("Precondition"),
-    TEST_STEP_NUMBER("Test Step #"),
     TEST_STEP_DESCRIPTION("Test Step Description"),
-    TEST_STEP_EXPECTED_RESULT("Test Step Expected Result"),
-    TEST_STEP_ATTACHMENT("Test Step Attachment"),
-    REQUIREMENT_IDS("Requirement Ids"),
-    REQUIREMENTS("Requirements"),
-    VERSION("Version"),
-    ASSIGNED_TO("Assigned To"),
-    PRIORITY("Priority"),
-    EPIC_LINK("Epic Link");
+    TEST_STEP_EXPECTED_RESULT("Test Step Expected Result");
 
     private final String typeName;
 

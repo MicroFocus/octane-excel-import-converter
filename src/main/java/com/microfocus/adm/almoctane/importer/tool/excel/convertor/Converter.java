@@ -17,7 +17,11 @@ package com.microfocus.adm.almoctane.importer.tool.excel.convertor;
 
 import java.io.IOException;
 
+@SuppressWarnings("UnnecessaryInterfaceModifier")
 public interface Converter {
+
+    public static final int MAXIMUM_COLUMN_WIDTH = 20000;
+    public static final String DEFAULT = "default";
 
     public void convert();
 
