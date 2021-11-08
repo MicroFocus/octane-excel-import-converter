@@ -15,7 +15,10 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel;
 
+import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionProperties;
+import com.microfocus.adm.almoctane.importer.tool.excel.convertor.Converter;
+import com.microfocus.adm.almoctane.importer.tool.excel.convertor.ConverterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +31,16 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            ConversionProperties properties = ConversionProperties.getProperties("converter.properties");
             // TODO validate properties
+            ConversionProperties properties = ConversionProperties.getProperties("converter.properties");
 
-            // TODO start conversion
+            ConversionInfoContainer infoContainer = new ConversionInfoContainer(properties);
+
+            Converter converter = ConverterFactory.getConverter(infoContainer);
+
+            converter.convert();
+
+            converter.write();
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             System.exit(1);
