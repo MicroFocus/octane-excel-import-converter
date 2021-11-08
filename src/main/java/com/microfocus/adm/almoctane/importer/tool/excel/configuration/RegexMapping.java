@@ -15,17 +15,23 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.configuration;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.regex.Pattern;
 
 @Getter
-public class ConversionInfoContainer {
+@NoArgsConstructor
+@AllArgsConstructor
+public class RegexMapping {
 
-    private final ConversionProperties conversionProperties;
-    private final ConversionMappings conversionMappings;
+    private Pattern pattern;
+    private String replacement;
 
-    public ConversionInfoContainer(ConversionProperties conversionProperties, ConversionMappings conversionMappings) {
-        this.conversionProperties = conversionProperties;
-        this.conversionMappings = conversionMappings;
+    public RegexMapping(String pattern, String replacement) {
+        this.pattern = Pattern.compile(pattern);
+        this.replacement = replacement;
     }
 
 }

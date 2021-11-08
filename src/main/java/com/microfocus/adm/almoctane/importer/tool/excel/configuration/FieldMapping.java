@@ -15,12 +15,20 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.configuration;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -29,8 +37,31 @@ import java.util.Map;
 @AllArgsConstructor
 public class FieldMapping {
 
+    @JsonProperty("target")
     private String target = null;
-    private String mappingSeparator = null;
-    private Map<String, String> mapping = Collections.emptyMap();
+
+    @JsonProperty("mappings_separator")
+    private String mappingsSeparator = null;
+
+    @JsonProperty("mappings")
+    private Map<String, String> mappings = Collections.emptyMap();
+
+    @JsonProperty("regex_mappings")
+    @JsonDeserialize(using = RegexMappingDeserializer.class)
+    private List<RegexMapping> regexMappings = Collections.emptyList();
+
+    private static class RegexMappingDeserializer extends JsonDeserializer<List<RegexMapping>> {
+
+        @Override
+        public List<RegexMapping> deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+            List<RegexMapping> regexMappingList = new ArrayList<>();
+
+            context.readTree(parser).fields().forEachRemaining(regexToReplacement ->
+                    regexMappingList.add(new RegexMapping(regexToReplacement.getKey(), regexToReplacement.getValue().asText())));
+
+            return regexMappingList;
+        }
+
+    }
 
 }

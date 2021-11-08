@@ -15,10 +15,12 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.convertor;
 
+import com.google.common.collect.Lists;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionMappings;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionProperties;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.FieldMapping;
+import com.microfocus.adm.almoctane.importer.tool.excel.configuration.RegexMapping;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.BaseOctaneField;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.EntityType;
 import org.apache.commons.io.FileUtils;
@@ -49,6 +51,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -56,8 +60,8 @@ public abstract class AbstractConverter implements Converter {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    protected final ConversionProperties properties;
-    protected final ConversionMappings mappings;
+    protected final ConversionProperties conversionProperties;
+    protected final ConversionMappings conversionMappings;
     protected final Map<String, String> inputFieldNameToOutputFieldName;
     protected final Sheet inputSheet;
     protected final Sheet outputSheet;
@@ -66,13 +70,13 @@ public abstract class AbstractConverter implements Converter {
 
     protected AbstractConverter(ConversionInfoContainer infoContainer, int inputSheetIndex, String outputSheetName)
             throws IOException {
-        this.properties = infoContainer.getProperties();
-        this.mappings = infoContainer.getMappings();
+        this.conversionProperties = infoContainer.getConversionProperties();
+        this.conversionMappings = infoContainer.getConversionMappings();
 
-        this.inputFieldNameToOutputFieldName = getInputFieldNameToOutputFieldName(mappings.getFieldNameToFieldMapping());
+        this.inputFieldNameToOutputFieldName = getInputFieldNameToOutputFieldName(conversionMappings.getFieldNameToFieldMapping());
 
-        Workbook inputWorkbook = getInputWorkbook(properties.getInputFilePath());
-        Workbook outputWorkbook = getOutputWorkbook(properties.getOutputFilePath());
+        Workbook inputWorkbook = getInputWorkbook(conversionProperties.getInputFilePath());
+        Workbook outputWorkbook = getOutputWorkbook(conversionProperties.getOutputFilePath());
 
         this.inputSheet = inputWorkbook.getSheetAt(inputSheetIndex);
         List<String> outputHeaders = getOutputHeaders(getMandatoryOutputHeaders(), inputFieldNameToOutputFieldName);
@@ -83,22 +87,21 @@ public abstract class AbstractConverter implements Converter {
     }
 
     protected List<String> getMandatoryOutputHeaders() {
-        return Arrays.asList(BaseOctaneField.UNIQUE_ID.toString(), BaseOctaneField.TYPE.toString());
+        return Lists.newArrayList(BaseOctaneField.UNIQUE_ID.toString(), BaseOctaneField.TYPE.toString());
     }
 
     protected String convertField(String fieldValue, String fieldName) {
-        FieldMapping fieldMapping = mappings.getFieldNameToFieldMapping().get(fieldName);
+        FieldMapping fieldMapping = conversionMappings.getFieldNameToFieldMapping().get(fieldName);
         if (fieldMapping != null) {
-            Map<String, String> mapping = fieldMapping.getMapping();
-            String separator = fieldMapping.getMappingSeparator();
+            String separator = fieldMapping.getMappingsSeparator();
             if (separator != null) {
                 return Arrays.stream(fieldValue.split(separator))
                         .map(String::trim)
-                        .map(singleFieldValue -> getMappedValue(mapping, singleFieldValue, fieldName))
+                        .map(singleFieldValue -> getMappedValue(fieldMapping, singleFieldValue, fieldName))
                         .filter(StringUtils::isNotEmpty)
                         .collect(Collectors.joining(","));
             } else {
-                return getMappedValue(mapping, fieldValue, fieldName);
+                return getMappedValue(fieldMapping, fieldValue, fieldName);
             }
         } else {
             log.debug("No field mapping was found for field with name '{}'.", fieldName);
@@ -106,21 +109,36 @@ public abstract class AbstractConverter implements Converter {
         }
     }
 
-    private String getMappedValue(Map<String, String> mapping, String fieldValue, String fieldName) {
-        String convertedValue = mapping.get(fieldValue);
+    private String getMappedValue(FieldMapping fieldMapping, String fieldValue, String fieldName) {
+        // converting using mapping
+        Map<String, String> mappings = fieldMapping.getMappings();
+        String convertedValue = mappings.get(fieldValue);
         if (convertedValue != null) {
-            log.debug("Converted field with name '{}' from '{}' to '{}'.", fieldName, fieldValue, convertedValue);
+            log.debug("Mapped field with name '{}' from '{}' to '{}'.", fieldName, fieldValue, convertedValue);
             return convertedValue;
         } else {
-            String defaultValue = mapping.get(DEFAULT);
+            String defaultValue = mappings.get(DEFAULT);
             if (defaultValue != null) {
-                log.debug("Converted field with name '{}' from '{}' to '{}' using the default value.", fieldName, fieldValue, defaultValue);
+                log.debug("Default mapped field with name '{}' from '{}' to '{}'.", fieldName, fieldValue, defaultValue);
                 return defaultValue;
-            } else {
-                log.debug("No mapping for field with name '{}' and value '{}', the value will remain unchanged.", fieldName, fieldValue);
-                return fieldValue;
             }
         }
+
+        // converting using regex mapping
+        List<RegexMapping> regexMappings = fieldMapping.getRegexMappings();
+        for (RegexMapping regexMapping : regexMappings) {
+            Pattern pattern = regexMapping.getPattern();
+            Matcher matcher = pattern.matcher(fieldValue);
+            if (matcher.matches()) {
+                String replacedValue = matcher.replaceAll(regexMapping.getReplacement());
+                log.debug("Mapped using regex '{}' field with name '{}' from '{}' to '{}'.", pattern, fieldName, fieldValue, replacedValue);
+                return replacedValue;
+            }
+        }
+
+        // returns the value unchanged if no mapping or regex mapping matches (could be the case when no mappings are specified)
+        log.debug("Unchanged value, no mapping or regex mapping for field with name '{}' and value '{}'.", fieldName, fieldValue);
+        return fieldValue;
     }
 
     protected Row createRow(EntityType entityType) {
@@ -173,7 +191,7 @@ public abstract class AbstractConverter implements Converter {
             }
         }
 
-        OutputStream fileOutputStream = FileUtils.openOutputStream(new File(properties.getOutputFilePath()));
+        OutputStream fileOutputStream = FileUtils.openOutputStream(new File(conversionProperties.getOutputFilePath()));
         outputWorkbook.write(fileOutputStream);
         outputWorkbook.close();
     }

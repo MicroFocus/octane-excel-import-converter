@@ -27,7 +27,7 @@ public class ConverterFactory {
     }
 
     public static Converter getConverter(ConversionInfoContainer infoContainer) throws IOException {
-        ExcelFormatType inputFileFormat = infoContainer.getProperties().getInputFileFormatType();
+        ExcelFormatType inputFileFormat = infoContainer.getConversionProperties().getInputFileFormatType();
         switch (inputFileFormat) {
             case QTEST:
                 return new QTestConverter(infoContainer);
