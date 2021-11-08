@@ -61,10 +61,10 @@ The mappings file is called **mapping.json** and has the following structure:
 ```
 
 Regex Examples: 
-- '"[\\s\\S]*\. ([\\s\\S]*)"':'"$1"', can be used for removing part of the input. For values: 'App 1. Octane', 'App 2. MyApp' 
-would match and the result would be: 'Octane', 'MyApp' respectively. 
-- '"[\\s\\S]*^"':'""', can be used to remove all values that end in '^'.
+- `"[\\s\\S]*\. ([\\s\\S]*)"`:`"$1"`, can be used for removing part of the input. For values: "App 1. Octane", "App 2. MyApp"
+would match and the result would be: "Octane", "MyApp" respectively. 
+- `"[\\s\\S]*&"`:`""`, can be used to remove all values that end in "&".
 
-Note: You have to use double backslash `\\` to define a single '\'. If you want to define `\w`, then you must be
+Note: You have to use double backslash `\\` to define a single backslash `\ `. If you want to define `\w`, then you must be
 using `\\w` in your regex. The method used is `REGEX_MAPPING_VALUE.replaceAll(REGEX_REPLACEMENT_VALUE)`. A more
 compressive regex guide can be found [here](https://www.vogella.com/tutorials/JavaRegularExpressions/article.html).
