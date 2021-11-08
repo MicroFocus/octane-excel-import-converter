@@ -15,17 +15,22 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.configuration;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.util.Collections;
+import java.util.Map;
 
 @Getter
-public class ConversionInfoContainer {
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class FieldMapping {
 
-    private final ConversionProperties properties;
-    private final ConversionMappings mappings;
-
-    public ConversionInfoContainer(ConversionProperties conversionProperties, ConversionMappings mappings) {
-        this.properties = conversionProperties;
-        this.mappings = mappings;
-    }
+    private String target = null;
+    private String mappingSeparator = null;
+    private Map<String, String> mapping = Collections.emptyMap();
 
 }

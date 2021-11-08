@@ -16,6 +16,7 @@
 package com.microfocus.adm.almoctane.importer.tool.excel;
 
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
+import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionMappings;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionProperties;
 import com.microfocus.adm.almoctane.importer.tool.excel.convertor.Converter;
 import com.microfocus.adm.almoctane.importer.tool.excel.convertor.ConverterFactory;
@@ -31,10 +32,11 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            // TODO validate properties
+            // TODO validate properties and mappings
             ConversionProperties properties = ConversionProperties.getProperties("converter.properties");
+            ConversionMappings mappings = ConversionMappings.getMappings("mapping.json");
 
-            ConversionInfoContainer infoContainer = new ConversionInfoContainer(properties);
+            ConversionInfoContainer infoContainer = new ConversionInfoContainer(properties, mappings);
 
             Converter converter = ConverterFactory.getConverter(infoContainer);
 

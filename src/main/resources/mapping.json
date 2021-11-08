@@ -1,0 +1,10 @@
+{
+  "field_mappings": {
+    "Name": {
+      "target": "name"
+    },
+    "Status": {
+      "target": "phase"
+    }
+  }
+}

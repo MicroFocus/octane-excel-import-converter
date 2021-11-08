@@ -15,17 +15,27 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.configuration;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
 
 @Getter
-public class ConversionInfoContainer {
+public class ConversionMappings {
 
-    private final ConversionProperties properties;
-    private final ConversionMappings mappings;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConversionMappings.class);
 
-    public ConversionInfoContainer(ConversionProperties conversionProperties, ConversionMappings mappings) {
-        this.properties = conversionProperties;
-        this.mappings = mappings;
+    @JsonProperty("field_mappings")
+    private LinkedHashMap<String, FieldMapping> fieldNameToFieldMapping;
+
+    private ConversionMappings() {
+    }
+
+    public static ConversionMappings getMappings(String filePath) throws IOException {
+        return MappingsUtils.getMapping(filePath, ConversionMappings.class);
     }
 
 }
