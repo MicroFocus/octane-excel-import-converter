@@ -15,6 +15,7 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.configuration;
 
+import com.microfocus.adm.almoctane.importer.tool.excel.utils.IntegrityChecker;
 import lombok.Getter;
 
 @Getter
@@ -26,6 +27,8 @@ public class ConversionInfoContainer {
     public ConversionInfoContainer(ConversionProperties conversionProperties, ConversionMappings conversionMappings) {
         this.conversionProperties = conversionProperties;
         this.conversionMappings = conversionMappings;
+
+        new IntegrityChecker(this).checkIntegrity();
     }
 
 }

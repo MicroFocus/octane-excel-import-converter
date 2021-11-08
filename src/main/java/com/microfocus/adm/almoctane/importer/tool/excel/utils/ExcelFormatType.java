@@ -15,6 +15,16 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.utils;
 
+import com.google.common.collect.Sets;
+
+import java.util.Set;
+
 public enum ExcelFormatType {
-    QTEST, OCTANE, UNKNOWN
+    QTEST, OCTANE, UNKNOWN;
+
+    private static final Set<String> VALID_TYPES = Sets.newHashSet(QTEST.toString());
+
+    public static Set<String> validTypes() {
+        return VALID_TYPES;
+    }
 }

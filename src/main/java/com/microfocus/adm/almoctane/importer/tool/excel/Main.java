@@ -23,6 +23,7 @@ import com.microfocus.adm.almoctane.importer.tool.excel.convertor.ConverterFacto
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -32,21 +33,25 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            // TODO validate properties and mappings
-            ConversionProperties properties = ConversionProperties.getProperties("converter.properties");
-            ConversionMappings mappings = ConversionMappings.getMappings("mapping.json");
-
-            ConversionInfoContainer infoContainer = new ConversionInfoContainer(properties, mappings);
-
+            ConversionInfoContainer infoContainer = getConversionInfoContainer();
             Converter converter = ConverterFactory.getConverter(infoContainer);
 
+            LOGGER.info("Conversion started.");
             converter.convert();
-
             converter.write();
+            LOGGER.info("Conversion finished successfully.");
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
+            LOGGER.info("Conversion finished unsuccessfully.");
             System.exit(1);
         }
+    }
+
+    private static ConversionInfoContainer getConversionInfoContainer() throws IOException {
+        ConversionProperties properties = ConversionProperties.getProperties("converter.properties");
+        ConversionMappings mappings = ConversionMappings.getMappings("mapping.json");
+
+        return new ConversionInfoContainer(properties, mappings);
     }
 
     private static Logger getLogger() {
