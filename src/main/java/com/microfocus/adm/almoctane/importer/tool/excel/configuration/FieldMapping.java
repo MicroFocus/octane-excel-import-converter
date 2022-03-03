@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Metadata about the destination field and the extra conversions made for the field.
+ */
 @Getter
 @ToString
 @NoArgsConstructor
@@ -50,6 +53,9 @@ public class FieldMapping {
     @JsonDeserialize(using = RegexMappingDeserializer.class)
     private List<RegexMapping> regexMappings = Collections.emptyList();
 
+    /**
+     * Deserializer for {@link RegexMapping}.
+     */
     private static class RegexMappingDeserializer extends JsonDeserializer<List<RegexMapping>> {
 
         @Override

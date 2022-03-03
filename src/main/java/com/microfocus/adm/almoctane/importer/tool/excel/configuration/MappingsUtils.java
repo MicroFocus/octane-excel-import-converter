@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,18 @@ package com.microfocus.adm.almoctane.importer.tool.excel.configuration;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Mapping utils.
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MappingsUtils {
-
-    private MappingsUtils() {
-    }
 
     /**
      * @param filePath The path to the *.json file.

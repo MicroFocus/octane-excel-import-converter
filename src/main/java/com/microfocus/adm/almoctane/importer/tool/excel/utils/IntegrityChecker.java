@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.microfocus.adm.almoctane.importer.tool.excel.configuration.Conversion
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionMappings;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionProperties;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.FieldMapping;
-import com.microfocus.adm.almoctane.importer.tool.excel.convertor.AbstractConverter;
-import com.microfocus.adm.almoctane.importer.tool.excel.convertor.QTestConverter;
+import com.microfocus.adm.almoctane.importer.tool.excel.converter.AbstractConverter;
+import com.microfocus.adm.almoctane.importer.tool.excel.converter.QTestConverter;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -34,6 +34,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Checks the integrity of the given {@link ConversionProperties} and {@link ConversionMappings}.
+ */
 public class IntegrityChecker {
 
     private final IntegrityHandler integrityHandler;
@@ -49,6 +52,9 @@ public class IntegrityChecker {
         this.conversionMappings = infoContainer.getConversionMappings();
     }
 
+    /**
+     * Checks the integrity of the given {@link ConversionProperties} and {@link ConversionMappings}.
+     */
     public void checkIntegrity() {
         checkConversionProperties();
 
@@ -57,12 +63,18 @@ public class IntegrityChecker {
         integrityHandler.promptUserIntegrityStatus();
     }
 
+    /**
+     * Checks the integrity of the given {@link ConversionProperties}.
+     */
     private void checkConversionProperties() {
         checkInputFile();
 
         checkOutputFile();
     }
 
+    /**
+     * If an input file was specified, it exists and it can be written to.
+     */
     private void checkInputFile() {
         String inputFilePath = conversionProperties.getInputFilePath();
         if (inputFilePath != null) {
@@ -84,6 +96,9 @@ public class IntegrityChecker {
         }
     }
 
+    /**
+     * If an output file was specified, it doesn't exist or if the output file should be overridden and if it can be written to.
+     */
     private void checkOutputFile() {
         String outputFilePath = conversionProperties.getOutputFilePath();
         if (outputFilePath != null) {
@@ -104,6 +119,10 @@ public class IntegrityChecker {
         }
     }
 
+    /**
+     * Checks the integrity of the given {@link ConversionMappings}.
+     * If all fields have exactly one target field specified.
+     */
     private void checkConversionMappings() {
         Map<String, FieldMapping> fieldNameToFieldMapping = conversionMappings.getFieldNameToFieldMapping();
 
@@ -130,11 +149,16 @@ public class IntegrityChecker {
                 .forEach(entry -> integrityHandler.logError("Target field {} is used by multiple input field mappings.", entry.getKey()));
     }
 
-    private static boolean isLocked(File inputFile) {
-        if (!inputFile.exists()) {
+    /**
+     * @param file The file that will be tested if it is locked.
+     *
+     * @return true if the file is locked, false otherwise.
+     */
+    private static boolean isLocked(File file) {
+        if (!file.exists()) {
             return false;
         } else {
-            try (FileChannel channel = new RandomAccessFile(inputFile, "rw").getChannel()) {
+            try (FileChannel channel = new RandomAccessFile(file, "rw").getChannel()) {
                 channel.lock().release();
                 return false;
             } catch (IOException ex) {

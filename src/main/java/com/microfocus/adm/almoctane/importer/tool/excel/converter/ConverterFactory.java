@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microfocus.adm.almoctane.importer.tool.excel.convertor;
+package com.microfocus.adm.almoctane.importer.tool.excel.converter;
 
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.ConversionException;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.ExcelFormatType;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 
+/**
+ * Factory that returns converters based on the type used in the given {@link ConversionInfoContainer}.
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConverterFactory {
 
-    private ConverterFactory() {
-    }
-
+    /**
+     * @param infoContainer The {@link ConversionInfoContainer} used to create the right type of converter.
+     *
+     * @return A newly created converter.
+     *
+     * @throws IOException If the {@link Converter} constructor fails.
+     */
     public static Converter getConverter(ConversionInfoContainer infoContainer) throws IOException {
         ExcelFormatType inputFileFormat = infoContainer.getConversionProperties().getInputFileFormatType();
         switch (inputFileFormat) {

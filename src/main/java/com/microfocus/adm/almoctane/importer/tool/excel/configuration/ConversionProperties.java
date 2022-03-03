@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.ExcelFormatType;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 
+/**
+ * Converter configuration properties.
+ */
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConversionProperties {
 
     @JsonProperty("input.file.path")
@@ -35,9 +41,6 @@ public class ConversionProperties {
 
     @JsonProperty("output.file.path")
     private String outputFilePath;
-
-    private ConversionProperties() {
-    }
 
     public static ConversionProperties getProperties(String filePath) throws IOException {
         return PropertiesUtils.getProperties(filePath, ConversionProperties.class);

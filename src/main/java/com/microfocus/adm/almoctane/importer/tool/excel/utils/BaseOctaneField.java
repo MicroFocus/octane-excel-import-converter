@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,12 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.utils;
 
+import lombok.AllArgsConstructor;
+
+/**
+ * Mandatory Octane manual test fields.
+ */
+@AllArgsConstructor
 public enum BaseOctaneField {
     UNIQUE_ID("unique_id"),
     TYPE("type"),
@@ -23,10 +29,6 @@ public enum BaseOctaneField {
     STEP_DESCRIPTION("step_description");
 
     private final String typeName;
-
-    BaseOctaneField(String name) {
-        this.typeName = name;
-    }
 
     @Override
     public String toString() {

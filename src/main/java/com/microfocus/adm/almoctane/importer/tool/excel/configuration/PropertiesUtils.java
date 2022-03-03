@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,18 +24,21 @@ import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsSchema;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Properties utils.
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PropertiesUtils {
 
     private static final SimpleModule treatEmptyStringsAsNullModule = createTreatEmptyStringsAsNullModule();
-
-    private PropertiesUtils() {
-    }
 
     /**
      * @param filePath The path to the properties file.
@@ -64,6 +67,9 @@ public class PropertiesUtils {
         }
     }
 
+    /**
+     * @return A new {@link SimpleModule} used to treat empty strings as null.
+     */
     private static SimpleModule createTreatEmptyStringsAsNullModule() {
         return new SimpleModule()
                 .addDeserializer(String.class, new StdDeserializer<String>(String.class) {

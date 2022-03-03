@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,22 @@
 package com.microfocus.adm.almoctane.importer.tool.excel.configuration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
+/**
+ * The mapping needed to specify what field from source excel goes to what field from destination excel and with what properties.
+ */
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConversionMappings {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConversionMappings.class);
 
     @JsonProperty("field_mappings")
     private LinkedHashMap<String, FieldMapping> fieldNameToFieldMapping;
-
-    private ConversionMappings() {
-    }
 
     public static ConversionMappings getMappings(String filePath) throws IOException {
         return MappingsUtils.getMapping(filePath, ConversionMappings.class);

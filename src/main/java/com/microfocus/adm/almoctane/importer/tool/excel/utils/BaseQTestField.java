@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.utils;
 
+import lombok.AllArgsConstructor;
+
+/**
+ * Mandatory QTest test fields.
+ */
+@AllArgsConstructor
 public enum BaseQTestField {
     ID("Id"),
     TEST_STEP_DESCRIPTION("Test Step Description"),
     TEST_STEP_EXPECTED_RESULT("Test Step Expected Result");
 
     private final String typeName;
-
-    BaseQTestField(String name) {
-        this.typeName = name;
-    }
 
     @Override
     public String toString() {

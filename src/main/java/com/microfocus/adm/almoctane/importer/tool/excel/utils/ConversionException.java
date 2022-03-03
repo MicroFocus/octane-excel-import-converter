@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.utils;
 
+/**
+ * Specific exception for the converter.
+ */
 public class ConversionException extends RuntimeException {
 
     public ConversionException(String message) {

@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microfocus.adm.almoctane.importer.tool.excel.convertor;
+package com.microfocus.adm.almoctane.importer.tool.excel.converter;
 
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.BaseQTestField;
@@ -22,6 +22,9 @@ import org.apache.poi.ss.usermodel.Row;
 import java.io.IOException;
 import java.util.Iterator;
 
+/**
+ * QTest specific converter.
+ */
 public class QTestConverter extends AbstractTestConverter {
 
     public static final int INPUT_SHEET_INDEX = 1;
@@ -30,6 +33,9 @@ public class QTestConverter extends AbstractTestConverter {
         super(infoContainer, INPUT_SHEET_INDEX);
     }
 
+    /**
+     * Converts the input worksheet into an output worksheet kept in memory.
+     */
     @Override
     public void convert() {
         Iterator<Row> testCasesRowIterator = inputSheet.iterator();

@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package com.microfocus.adm.almoctane.importer.tool.excel.configuration;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.IntegrityChecker;
 import lombok.Getter;
 
+/**
+ * Container for converter configuration.
+ */
 @Getter
 public class ConversionInfoContainer {
 
@@ -28,6 +31,7 @@ public class ConversionInfoContainer {
         this.conversionProperties = conversionProperties;
         this.conversionMappings = conversionMappings;
 
+        // checks the integrity of the given configuration
         new IntegrityChecker(this).checkIntegrity();
     }
 

@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.regex.Pattern;
 
+/**
+ * Data class used for regex mapping.
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

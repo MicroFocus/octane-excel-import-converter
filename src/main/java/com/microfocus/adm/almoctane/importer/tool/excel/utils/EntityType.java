@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.utils;
 
+import lombok.AllArgsConstructor;
+
+/**
+ * Octane manual test related entities type.
+ */
+@AllArgsConstructor
 public enum EntityType {
     MANUAL_TEST("test_manual"),
     STEP("step"),
     UNKNOWN(null);
 
     private final String typeName;
-
-    EntityType(String name) {
-        this.typeName = name;
-    }
 
     @Override
     public String toString() {

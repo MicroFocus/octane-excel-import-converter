@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.microfocus.adm.almoctane.importer.tool.excel;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionMappings;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionProperties;
-import com.microfocus.adm.almoctane.importer.tool.excel.convertor.Converter;
-import com.microfocus.adm.almoctane.importer.tool.excel.convertor.ConverterFactory;
+import com.microfocus.adm.almoctane.importer.tool.excel.converter.Converter;
+import com.microfocus.adm.almoctane.importer.tool.excel.converter.ConverterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +31,11 @@ public class Main {
 
     private static final Logger LOGGER = getLogger();
 
+    /**
+     * The entry point of the program.
+     *
+     * @param args The args that won't be used.
+     */
     public static void main(String[] args) {
         try {
             ConversionInfoContainer infoContainer = getConversionInfoContainer();
@@ -47,6 +52,11 @@ public class Main {
         }
     }
 
+    /**
+     * @return A new ConversionInfoContainer from given files.
+     *
+     * @throws IOException If any of the required files are missing.
+     */
     private static ConversionInfoContainer getConversionInfoContainer() throws IOException {
         ConversionProperties properties = ConversionProperties.getProperties("converter.properties");
         ConversionMappings mappings = ConversionMappings.getMappings("mapping.json");
@@ -54,6 +64,11 @@ public class Main {
         return new ConversionInfoContainer(properties, mappings);
     }
 
+    /**
+     * Sets the property used in the log4j2.properties file for the name of the logging file and returns the logger.
+     *
+     * @return The newly created Logger.
+     */
     private static Logger getLogger() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
         System.setProperty("com.microfocus.adm.almoctane.importer.tool.excel.support.start.date.time", dateFormat.format(new Date()));

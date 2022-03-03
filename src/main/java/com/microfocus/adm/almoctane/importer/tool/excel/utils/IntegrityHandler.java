@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Scanner;
 
+/**
+ * Used to restrict the execution of code based on the errors and warnings encountered.
+ */
+@Slf4j
 public class IntegrityHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IntegrityHandler.class);
     private int errorsFound;
     private int warningsFound;
 
@@ -31,47 +33,57 @@ public class IntegrityHandler {
         this.warningsFound = 0;
     }
 
+    // logs the error and increases the number of errors encountered
     public void logError(String error, Object... objects) {
-        LOGGER.error(error, objects);
+        log.error(error, objects);
         this.errorsFound += 1;
     }
 
+    // logs the error and increases the number of errors encountered
     public void logError(Throwable throwable) {
-        LOGGER.error("Unknown error: \n", throwable);
+        log.error("Unknown error: \n", throwable);
         this.errorsFound += 1;
     }
 
+    // logs the warning and increases the number of warnings encountered
     public void logWarning(String warning, Object... objects) {
-        LOGGER.warn(warning, objects);
+        log.warn(warning, objects);
         this.warningsFound += 1;
     }
 
+    /**
+     * If at least one error was found it logs the warnings and errors encountered and stops the whole program.
+     */
     public void stopOnCriticalError() {
         if (errorsFound > 0) {
-            LOGGER.error("Errors encountered: {} and warnings encountered: {}. Conversion can't start.", errorsFound, warningsFound);
+            log.error("Errors encountered: {} and warnings encountered: {}. Conversion can't start.", errorsFound, warningsFound);
             System.exit(0);
         }
     }
 
+    /**
+     * If at least one error was found it logs the warnings and errors encountered and stops the whole program.
+     * If at least one warning was found it asks the user if it should continue or stop the program.
+     */
     public void promptUserIntegrityStatus() {
         if (errorsFound > 0) {
-            LOGGER.error("Errors encountered: {} and warnings encountered: {}. Conversion can't start.", errorsFound, warningsFound);
+            log.error("Errors encountered: {} and warnings encountered: {}. Conversion can't start.", errorsFound, warningsFound);
             System.exit(0);
         } else if (warningsFound > 0) {
-            LOGGER.info("Warnings encountered: {}. Continue? [YES/NO]", warningsFound);
+            log.info("Warnings encountered: {}. Continue? [YES/NO]", warningsFound);
             Scanner sc = new Scanner(System.in);
             while (true) {
                 String line = sc.nextLine().trim().toUpperCase();
                 switch (line) {
                     case "YES":
-                        LOGGER.info("Continuing........");
+                        log.info("Continuing........");
                         return;
                     case "NO":
-                        LOGGER.info("Stopping the conversion.");
+                        log.info("Stopping the conversion.");
                         System.exit(0);
                         return;
                     default:
-                        LOGGER.info("Wrong input, please enter a valid answer. [YES/NO]");
+                        log.info("Wrong input, please enter a valid answer. [YES/NO]");
                 }
             }
         }

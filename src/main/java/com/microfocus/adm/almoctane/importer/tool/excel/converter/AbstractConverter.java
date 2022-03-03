@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2021 Micro Focus or one of its affiliates.
+ * (c) Copyright 2022 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microfocus.adm.almoctane.importer.tool.excel.convertor;
+package com.microfocus.adm.almoctane.importer.tool.excel.converter;
 
 import com.google.common.collect.Lists;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
@@ -23,6 +23,7 @@ import com.microfocus.adm.almoctane.importer.tool.excel.configuration.FieldMappi
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.RegexMapping;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.BaseOctaneField;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.EntityType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -35,8 +36,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,9 +55,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/**
+ * Common abstract class for all excel entity converters.
+ */
+@Slf4j
 public abstract class AbstractConverter implements Converter {
-
-    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final ConversionProperties conversionProperties;
     protected final ConversionMappings conversionMappings;
@@ -86,10 +87,21 @@ public abstract class AbstractConverter implements Converter {
         this.outputHeaderNameToIndex = getHeaderNameToIndex(outputSheet);
     }
 
+    /**
+     * @return The mandatory output headers for all entity converters.
+     */
     protected List<String> getMandatoryOutputHeaders() {
         return Lists.newArrayList(BaseOctaneField.UNIQUE_ID.toString(), BaseOctaneField.TYPE.toString());
     }
 
+    /**
+     * Converts the value of a source field to the Octane value format.
+     *
+     * @param fieldValue The value of the source field that has to be converted.
+     * @param fieldName  The name of the source field that has to be converted.
+     *
+     * @return An octane specific value for the value of the source field.
+     */
     protected String convertField(String fieldValue, String fieldName) {
         FieldMapping fieldMapping = conversionMappings.getFieldNameToFieldMapping().get(fieldName);
         if (fieldMapping != null) {
@@ -109,6 +121,15 @@ public abstract class AbstractConverter implements Converter {
         }
     }
 
+    /**
+     * Converts the source field value using the mapping and regex mapping properties.
+     *
+     * @param fieldMapping The mapping of the source field.
+     * @param fieldValue   The value of the source field that has to be converted.
+     * @param fieldName    The name of the source field that has to be converted.
+     *
+     * @return An octane specific value for the value of the source field.
+     */
     private String getMappedValue(FieldMapping fieldMapping, String fieldValue, String fieldName) {
         // converting using mapping
         Map<String, String> mappings = fieldMapping.getMappings();
@@ -141,11 +162,22 @@ public abstract class AbstractConverter implements Converter {
         return fieldValue;
     }
 
+    /**
+     * @param entityType The value of the {@link BaseOctaneField#TYPE} column.
+     *
+     * @return A newly created {@link Row} on a new excel row. The {@link BaseOctaneField#UNIQUE_ID} will be filled with the row number.
+     */
     protected Row createRow(EntityType entityType) {
         int uniqueId = outputSheet.getLastRowNum() + 1;
         return createRow(uniqueId, entityType);
     }
 
+    /**
+     * @param uniqueId   The value of the {@link BaseOctaneField#UNIQUE_ID} column.
+     * @param entityType The value of the {@link BaseOctaneField#TYPE} column.
+     *
+     * @return A newly created {@link Row} on a new excel row.
+     */
     protected Row createRow(int uniqueId, EntityType entityType) {
         int outputRowIndex = outputSheet.getLastRowNum() + 1;
         Row stepRow = outputSheet.createRow(outputRowIndex);
@@ -156,24 +188,52 @@ public abstract class AbstractConverter implements Converter {
         return stepRow;
     }
 
+    /**
+     * @param row        The row that contains the wanted column.
+     * @param columnName The column name where the value is.
+     *
+     * @return The value from the given row and column converted to the Octane format.
+     */
     protected String getMappedCellValue(Row row, String columnName) {
         String cellValue = getCellValue(row, columnName);
         return convertField(cellValue.trim(), columnName);
     }
 
+    /**
+     * @param row        The row that contains the wanted column.
+     * @param columnName The column name where the value is.
+     *
+     * @return The value from the given row and column.
+     */
     protected String getCellValue(Row row, String columnName) {
         Cell cell = row.getCell(inputHeaderNameToIndex.get(columnName));
         return cell != null ? cell.getStringCellValue() : "";
     }
 
+    /**
+     * @param row        The row that the value will be set to.
+     * @param columnName The column name that the value will be set to.
+     * @param value      The string value that will be set at the given row and column.
+     */
     protected void setCellValue(Row row, String columnName, String value) {
         row.createCell(outputHeaderNameToIndex.get(columnName)).setCellValue(value);
     }
 
+    /**
+     * @param row        The row that the value will be set to.
+     * @param columnName The column name that the value will be set to.
+     * @param value      The integer value that will be set at the given row and column.
+     */
     protected void setCellValue(Row row, String columnName, Integer value) {
         row.createCell(outputHeaderNameToIndex.get(columnName)).setCellValue(value);
     }
 
+    /**
+     * The output workbook that was kept in memory will be written to the output file.
+     * Some styling will be added.
+     *
+     * @throws IOException If any write fails.
+     */
     @Override
     public void write() throws IOException {
         Workbook outputWorkbook = outputSheet.getWorkbook();
@@ -185,10 +245,10 @@ public abstract class AbstractConverter implements Converter {
         // adding header style and limiting column width to MAXIMUM_COLUMN_WIDTH
         if (outputSheet.getPhysicalNumberOfRows() > 0) {
             Row headerRow = outputSheet.getRow(outputSheet.getFirstRowNum());
-            for (int cellNum = headerRow.getFirstCellNum(); cellNum < headerRow.getLastCellNum(); cellNum++) {
-                headerRow.getCell(cellNum).setCellStyle(headerStyle);
+            for (int columnNumber = headerRow.getFirstCellNum(); columnNumber < headerRow.getLastCellNum(); columnNumber++) {
+                headerRow.getCell(columnNumber).setCellStyle(headerStyle);
 
-                updateColumnWidth(outputSheet, cellNum);
+                updateColumnWidth(outputSheet, columnNumber);
             }
         }
 
@@ -197,25 +257,41 @@ public abstract class AbstractConverter implements Converter {
         outputWorkbook.close();
     }
 
-    private static void updateColumnWidth(Sheet sheet, int cellNum) {
-        sheet.autoSizeColumn(cellNum);
-        if (sheet.getColumnWidth(cellNum) > MAXIMUM_COLUMN_WIDTH) {
+    /**
+     * @param sheet        The sheet that the update will be done to.
+     * @param columnNumber The column number that will have its width updated.
+     */
+    private static void updateColumnWidth(Sheet sheet, int columnNumber) {
+        sheet.autoSizeColumn(columnNumber);
+        if (sheet.getColumnWidth(columnNumber) > MAXIMUM_COLUMN_WIDTH) {
             for (Row row : sheet) {
-                Cell cell = row.getCell(cellNum);
+                Cell cell = row.getCell(columnNumber);
                 if (cell != null) {
                     cell.getCellStyle().setWrapText(true);
                 }
             }
-            sheet.setColumnWidth(cellNum, MAXIMUM_COLUMN_WIDTH);
+            sheet.setColumnWidth(columnNumber, MAXIMUM_COLUMN_WIDTH);
         }
     }
 
+    /**
+     * @param fieldNameToFieldMapping The mapping of fields.
+     *
+     * @return A map from the name of the input column name to the output column name.
+     */
     private static Map<String, String> getInputFieldNameToOutputFieldName(Map<String, FieldMapping> fieldNameToFieldMapping) {
         return fieldNameToFieldMapping.entrySet().stream()
                 .filter(entry -> entry.getValue().getTarget() != null)
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getTarget(), (a, b) -> a, LinkedHashMap::new));
     }
 
+    /**
+     * @param inputFilePath The path where the workbook will be created to.
+     *
+     * @return A new workbook that contains the data from the input file.
+     *
+     * @throws IOException If the read fails.
+     */
     private static Workbook getInputWorkbook(String inputFilePath) throws IOException {
         File file = new File(inputFilePath);
         if (file.exists()) {
@@ -225,6 +301,11 @@ public abstract class AbstractConverter implements Converter {
         }
     }
 
+    /**
+     * @param outputFilePath The path where the file will be created to.
+     *
+     * @return A new empty workbook.
+     */
     private static Workbook getOutputWorkbook(String outputFilePath) {
         if (outputFilePath.endsWith(".xlsx")) {
             return new XSSFWorkbook();
@@ -235,6 +316,12 @@ public abstract class AbstractConverter implements Converter {
         }
     }
 
+    /**
+     * @param mandatoryOutputHeaders          The required header names.
+     * @param inputFieldNameToOutputFieldName A map from the name of the input column name to the output column name.
+     *
+     * @return The list of headers that will be used to create the output file.
+     */
     private static List<String> getOutputHeaders(List<String> mandatoryOutputHeaders, Map<String, String> inputFieldNameToOutputFieldName) {
         Set<String> outputFieldNames = new LinkedHashSet<>();
         outputFieldNames.addAll(mandatoryOutputHeaders);
@@ -242,6 +329,13 @@ public abstract class AbstractConverter implements Converter {
         return new ArrayList<>(outputFieldNames);
     }
 
+    /**
+     * @param outputWorkbook The output workbook.
+     * @param sheetName      The sheet name.
+     * @param headers        The headers.
+     *
+     * @return A new sheet created in the output workbook with the given sheet name and with the given headers.
+     */
     private static Sheet createOutputSheetWithHeaders(Workbook outputWorkbook, String sheetName, List<String> headers) {
         Sheet sheet = outputWorkbook.createSheet(sheetName);
         Row headerRow = sheet.createRow(0);
@@ -252,6 +346,11 @@ public abstract class AbstractConverter implements Converter {
         return sheet;
     }
 
+    /**
+     * @param sheet The given sheet.
+     *
+     * @return A map from the column name to its index.
+     */
     public static Map<String, Integer> getHeaderNameToIndex(Sheet sheet) {
         Iterator<Row> rowIterator = sheet.iterator();
         if (rowIterator.hasNext()) {
