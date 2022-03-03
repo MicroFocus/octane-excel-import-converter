@@ -24,8 +24,10 @@ import java.util.Iterator;
 
 public class QTestConverter extends AbstractTestConverter {
 
+    public static final int INPUT_SHEET_INDEX = 1;
+
     public QTestConverter(ConversionInfoContainer infoContainer) throws IOException {
-        super(infoContainer, 1);
+        super(infoContainer, INPUT_SHEET_INDEX);
     }
 
     @Override
@@ -34,11 +36,11 @@ public class QTestConverter extends AbstractTestConverter {
         if (testCasesRowIterator.hasNext()) {
             testCasesRowIterator.next(); // skip header row
 
-            Integer idColumnIndex = inputHeaderNameToIndex.get(BaseQTestField.ID.toString());
             String lastId = null;
             while (testCasesRowIterator.hasNext()) {
                 Row row = testCasesRowIterator.next();
-                String currentId = row.getCell(idColumnIndex).getStringCellValue();
+
+                String currentId = getCellValue(row, BaseQTestField.ID.toString());
                 if (!currentId.equals(lastId)) {
                     addManualTest(row);
                     lastId = currentId;

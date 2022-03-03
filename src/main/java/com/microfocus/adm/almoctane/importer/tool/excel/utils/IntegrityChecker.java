@@ -15,10 +15,16 @@
  */
 package com.microfocus.adm.almoctane.importer.tool.excel.utils;
 
+import com.google.common.collect.Sets;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionMappings;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionProperties;
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.FieldMapping;
+import com.microfocus.adm.almoctane.importer.tool.excel.convertor.AbstractConverter;
+import com.microfocus.adm.almoctane.importer.tool.excel.convertor.QTestConverter;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +41,8 @@ public class IntegrityChecker {
     private final ConversionProperties conversionProperties;
     private final ConversionMappings conversionMappings;
 
+    private Set<String> inputHeaderNames;
+
     public IntegrityChecker(ConversionInfoContainer infoContainer) {
         this.integrityHandler = new IntegrityHandler();
         this.conversionProperties = infoContainer.getConversionProperties();
@@ -50,6 +58,12 @@ public class IntegrityChecker {
     }
 
     private void checkConversionProperties() {
+        checkInputFile();
+
+        checkOutputFile();
+    }
+
+    private void checkInputFile() {
         String inputFilePath = conversionProperties.getInputFilePath();
         if (inputFilePath != null) {
             File inputFile = new File(inputFilePath);
@@ -57,11 +71,20 @@ public class IntegrityChecker {
                 integrityHandler.logError("Input file '{}' doesn't exist.", inputFilePath);
             } else if (isLocked(inputFile)) {
                 integrityHandler.logError("Input file '{}' is already in use.", inputFilePath);
+            } else {
+                try (Workbook inputWorkbook = WorkbookFactory.create(inputFile)) {
+                    Sheet inputSheet = inputWorkbook.getSheetAt(QTestConverter.INPUT_SHEET_INDEX);
+                    this.inputHeaderNames = AbstractConverter.getHeaderNameToIndex(inputSheet).keySet();
+                } catch (IOException e) {
+                    integrityHandler.logError(e);
+                }
             }
         } else {
             integrityHandler.logError("No input file was provided.");
         }
+    }
 
+    private void checkOutputFile() {
         String outputFilePath = conversionProperties.getOutputFilePath();
         if (outputFilePath != null) {
             File outputFile = new File(outputFilePath);
@@ -77,17 +100,25 @@ public class IntegrityChecker {
 
         ExcelFormatType inputFileFormatType = conversionProperties.getInputFileFormatType();
         if (inputFileFormatType == ExcelFormatType.UNKNOWN) {
-            integrityHandler.logError("Unsupported input file format type, supported formats are: {}", ExcelFormatType.validTypes());
+            integrityHandler.logError("Unsupported input file format type, supported formats are: {}.", ExcelFormatType.validTypes());
         }
     }
 
     private void checkConversionMappings() {
         Map<String, FieldMapping> fieldNameToFieldMapping = conversionMappings.getFieldNameToFieldMapping();
-        fieldNameToFieldMapping.forEach((inputFieldName, fieldMapping) -> {
-            if (fieldMapping.getTarget() == null) {
-                integrityHandler.logWarning("No target specified for input field name '{}', mapping will be ignored.", inputFieldName);
+
+        if (inputHeaderNames != null) {
+            Set<String> unknownInputFields = Sets.difference(fieldNameToFieldMapping.keySet(), inputHeaderNames);
+            if (!unknownInputFields.isEmpty()) {
+                integrityHandler.logError("Unknown fields mapped from input file: '{}', valid field names are: '{}'.",
+                        String.join("', '", unknownInputFields), String.join("', '", inputHeaderNames));
             }
-        });
+        }
+
+        fieldNameToFieldMapping.entrySet().stream()
+                .filter(entry -> entry.getValue().getTarget() == null)
+                .forEach(entry -> integrityHandler.logWarning("Mapping will be ignored for input field with name '{}'"
+                        + " because no target output field name was specified.", entry.getKey()));
 
         Map<String, Set<String>> targetFieldNameToInputFieldNames = fieldNameToFieldMapping.entrySet().stream()
                 .filter(entry -> entry.getValue().getTarget() != null)

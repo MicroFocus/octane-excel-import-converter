@@ -2,7 +2,8 @@
 
 This project provides a way to convert other Excel formats to Octane import format.
 
-Supported formats: **qTest**.
+Supported formats: 
+- **qTest**, required fields: `Id`, `Test Step Description`, `Test Step Expected Result`.
 
 ## Running the tool
 
@@ -61,7 +62,7 @@ The mappings file is called **mapping.json** and has the following structure:
 ```
 
 Regex Examples: 
-- `"[\\s\\S]*\. ([\\s\\S]*)"`:`"$1"`, can be used for removing part of the input. For values: "App 1. Octane", "App 2. MyApp"
+- `"[\\s\\S]*\\. ([\\s\\S]*)"`:`"$1"`, can be used for removing part of the input. For values: "App 1. Octane", "App 2. MyApp"
 would match and the result would be: "Octane", "MyApp" respectively. 
 - `"[\\s\\S]*&"`:`""`, can be used to remove all values that end in "&".
 

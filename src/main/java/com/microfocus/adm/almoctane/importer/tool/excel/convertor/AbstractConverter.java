@@ -162,7 +162,8 @@ public abstract class AbstractConverter implements Converter {
     }
 
     protected String getCellValue(Row row, String columnName) {
-        return row.getCell(inputHeaderNameToIndex.get(columnName)).getStringCellValue();
+        Cell cell = row.getCell(inputHeaderNameToIndex.get(columnName));
+        return cell != null ? cell.getStringCellValue() : "";
     }
 
     protected void setCellValue(Row row, String columnName, String value) {
@@ -251,7 +252,7 @@ public abstract class AbstractConverter implements Converter {
         return sheet;
     }
 
-    private static Map<String, Integer> getHeaderNameToIndex(Sheet sheet) {
+    public static Map<String, Integer> getHeaderNameToIndex(Sheet sheet) {
         Iterator<Row> rowIterator = sheet.iterator();
         if (rowIterator.hasNext()) {
             Row headerRow = rowIterator.next();
