@@ -17,6 +17,7 @@ package com.microfocus.adm.almoctane.importer.tool.excel.converter;
 
 import com.microfocus.adm.almoctane.importer.tool.excel.configuration.ConversionInfoContainer;
 import com.microfocus.adm.almoctane.importer.tool.excel.utils.BaseQTestField;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.IOException;
@@ -47,12 +48,14 @@ public class QTestConverter extends AbstractTestConverter {
                 Row row = testCasesRowIterator.next();
 
                 String currentId = getCellValue(row, BaseQTestField.ID.toString());
-                if (!currentId.equals(lastId)) {
-                    addManualTest(row);
-                    lastId = currentId;
+                if (StringUtils.isNotBlank(currentId)) {
+                    if (!currentId.equals(lastId)) {
+                        addManualTest(row);
+                        lastId = currentId;
+                    }
+                    addSimpleStep(row, BaseQTestField.TEST_STEP_DESCRIPTION.toString());
+                    addValidationStep(row, BaseQTestField.TEST_STEP_EXPECTED_RESULT.toString());
                 }
-                addSimpleStep(row, BaseQTestField.TEST_STEP_DESCRIPTION.toString());
-                addValidationStep(row, BaseQTestField.TEST_STEP_EXPECTED_RESULT.toString());
             }
         }
     }
